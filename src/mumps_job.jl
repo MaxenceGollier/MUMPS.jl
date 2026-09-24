@@ -6,8 +6,7 @@ Enumeration of MUMPS job types; see MUMPS documentation for details.
   TERMINATE = -2 # terminates an instance of MUMPS
   DELETE_DATA = -3 # removes data saved to disk
   FACTOR_CLEANUP = -4 # frees all internal data, except those from analysis
-  # SURPRESS = -200 # "(experimental, subject to change) surpresses all MUMPS 
-  # out-of-core factor files associated with MPI processes and returns"
+  SUPPRESS_OOC_FILES = -200 # (experimental) deletes the OOC factor files of the calling process
   ANALYZE = 1 # performs the analysis phase
   FACTOR = 2 # performs the factorization phase
   SOLVE = 3 # performs the solve phase
@@ -16,14 +15,15 @@ Enumeration of MUMPS job types; see MUMPS documentation for details.
   ANALYZE_FACTOR_SOLVE = 6 # combines analyze, factorization, and solve phases
   SAVE_DATA = 7 # save/restore feature; save internal mumps data to disk.
   RESTORE_DATA = 8 # save/restore feature; restore internal mumps data from disk.
-  # RHS_DISTRIBUTION = 9 # "computes before the solution phase a possible distribution
-  # for the right-hand sides [among the processors]"
+  RHS_DISTRIBUTION = 9 # after factorization, computes a distribution of the right-hand sides
+  RECOMPUTE_STATISTICS = 13 # cheap re-analysis: recompute analysis statistics (MUMPS ≥ 5.9)
 end
 
 const SOLVE_JOBS = (SOLVE, FACTOR_SOLVE, ANALYZE_FACTOR_SOLVE)
 const ONLY_FACTORED = (FACTOR, ANALYZE_FACTOR)
+const ONLY_ANALYZED = (ANALYZE, RECOMPUTE_STATISTICS)
 
-is_factored(job::MUMPS_JOB) = job >= FACTOR
+is_factored(job::MUMPS_JOB) = job >= FACTOR && job != RECOMPUTE_STATISTICS
 
 function get_name(job::MUMPS_JOB)
   if job == INITIALIZE
@@ -50,6 +50,12 @@ function get_name(job::MUMPS_JOB)
     return "save"
   elseif job == RESTORE_DATA
     return "restore"
+  elseif job == RHS_DISTRIBUTION
+    return "compute right-hand side distribution"
+  elseif job == RECOMPUTE_STATISTICS
+    return "recompute analysis statistics"
+  elseif job == SUPPRESS_OOC_FILES
+    return "suppress out-of-core files"
   else
     return "unrecognized"
   end

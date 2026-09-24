@@ -22,7 +22,7 @@ function mumps_solve! end
 function mumps_solve!(mumps::Mumps; rhs_changed::Bool = false)
   if mumps.job ∈ ONLY_FACTORED || rhs_changed # if already factored, just solve
     mumps.job = SOLVE
-  elseif mumps.job ∈ [ANALYZE] # if analyzed only, factorize and solve
+  elseif mumps.job ∈ ONLY_ANALYZED # if analyzed only, factorize and solve
     mumps.job = FACTOR_SOLVE
   elseif mumps.job ∈ SOLVE_JOBS # is solved already.
     return nothing
@@ -96,7 +96,7 @@ function mumps_factorize!(mumps::Mumps)
   if mumps.job ∈ ONLY_FACTORED || mumps.job ∈ SOLVE_JOBS # already factored
     # @warn "already factored"
     return nothing
-  elseif mumps.job ∈ [ANALYZE] # if analyzed only, factorize
+  elseif mumps.job ∈ ONLY_ANALYZED # if analyzed only, factorize
     mumps.job = FACTOR
   else # else analyze, factor
     mumps.job = ANALYZE_FACTOR
@@ -174,7 +174,7 @@ function mumps_schur_complement! end
 
 function mumps_schur_complement!(mumps::Mumps, schur_inds::AbstractArray{Int, 1})
   set_schur_centralized_by_column!(mumps, schur_inds)
-  if mumps.job ∈ [ANALYZE] # if analyzed only, factorize
+  if mumps.job ∈ ONLY_ANALYZED # if analyzed only, factorize
     mumps.job = FACTOR
   else # else analyze, factor
     mumps.job = ANALYZE_FACTOR
@@ -225,7 +225,7 @@ function mumps_select_inv!(x::AbstractSparseArray, mumps::Mumps)
   associate_rhs!(mumps, x)
   if mumps.job ∈ ONLY_FACTORED # if already factored, just solve
     mumps.job = SOLVE
-  elseif mumps.job ∈ [ANALYZE] # if analyzed only, factorize and solve
+  elseif mumps.job ∈ ONLY_ANALYZED # if analyzed only, factorize and solve
     mumps.job = FACTOR_SOLVE
   else # else analyze, factor, solve
     mumps.job = ANALYZE_FACTOR_SOLVE
@@ -265,6 +265,23 @@ end
 function mumps_select_inv(A, I::AbstractArray{Int}, J::AbstractArray{Int})
   x = sparse(I, J, fill(one(eltype(A)), length(I)), size(A)...)
   mumps_select_inv!(x, A)
+end
+
+"""
+    mumps_recompute_statistics!(mumps)
+
+Cheap re-analysis (JOB=13, MUMPS ≥ 5.9): recompute the statistics of the analysis phase
+(memory and flop estimates) after changing ICNTL(14), ICNTL(47) or ICNTL(48), while reusing
+the ordering, symbolic factorization, mapping and BLR clustering of a previous analysis.
+The matrix must have been analyzed before, and must not be in elemental format.
+Any existing factorization is invalidated.
+"""
+function mumps_recompute_statistics!(mumps::Mumps)
+  mumps.job == INITIALIZE && throw(MUMPSException("the matrix must be analyzed first"))
+  is_matrix_assembled(mumps) ||
+    throw(MUMPSException("recomputing statistics is not available for elemental matrices"))
+  mumps.job = RECOMPUTE_STATISTICS
+  invoke_mumps!(mumps)
 end
 
 """

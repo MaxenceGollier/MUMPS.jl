@@ -187,9 +187,11 @@ function Mumps{T}(
   comm::Integer = DEFAULT_FORTRAN_COMMUNICATOR,
 ) where {TI <: Integer, T <: MUMPSValueDataType, V <: AbstractFloat}
 
-  # Set default pivot threshold if required.
-  if cntl[1] == -1
-    cntl[1] = (sym == mumps_definite) ? 0.0 : 0.01
+  # CNTL(1) = -1 is passed through unchanged: since MUMPS 5.7 it means "automatic", which
+  # lets MUMPS adapt the pivoting threshold, e.g., when rank-revealing (ICNTL(56)) is active.
+  # Note that `cntl` is never modified, so `default_cntl32` and `default_cntl64` stay intact.
+  if length(icntl) ≥ 47 && icntl[47] != 0 && real(T) == Float32
+    @warn "ICNTL(47) only applies to double precision instances, it is ignored for $T"
   end
   mumps = Mumps{T}(sym, par, comm)
   for i ∈ eachindex(icntl)
