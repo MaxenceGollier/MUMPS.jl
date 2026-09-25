@@ -122,10 +122,6 @@ Terminate a Mumps instance.
 Base.finalize(mumps::Mumps) = finalize!(mumps)
 
 # See Section 6.1 of the MUMPS 5.9.1 User's Guide.
-# The C structure holds 60 integer control parameters. Every entry of `default_icntl` is
-# copied into the `Mumps` instance by the constructor, so the values below must match the
-# defaults set by MUMPS itself on initialization (JOB = -1), except where MUMPS.jl
-# deliberately deviates from them.
 "Default integer parameters."
 default_icntl = zeros(Int32, 60);
 default_icntl[1] = 6;  # Output stream for error messages
