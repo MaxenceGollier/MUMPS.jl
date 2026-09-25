@@ -150,8 +150,8 @@ default_icntl[23] = 0;  # max working memory
 default_icntl[24] = 0;  # 0: null pivot=error
 default_icntl[25] = 0;  # -1: compute nullspace basis
 default_icntl[26] = 0;  # condense rhs on Schur variables (see 19)
-default_icntl[27] = -8;  # blocking size for multiple rhs (<0: value * (-2))
-default_icntl[28] = 0;  # 1: sequential analysis, 2: parallel, 0: automatic
+default_icntl[27] = -32;  # blocking size for multiple rhs (<0: automatic)
+default_icntl[28] = 1;  # 1: sequential analysis, 2: parallel, 0: automatic
 default_icntl[29] = 0;  # ordering for parallel analysis (see 28)
 default_icntl[30] = 0;  # compute entries of the inverse
 default_icntl[31] = 0;  # discard factors after factorization (1: all, 2: L only for unsymmetric)
