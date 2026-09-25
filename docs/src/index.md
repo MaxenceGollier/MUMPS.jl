@@ -125,11 +125,6 @@ corresponding to certain commonly-used options. Its arguments are all optional:
   (default: `false`, requires MUMPS ≥ 5.9).
 * `null_pivots`: detect null pivot rows (default: `false`).
 
-The arrays `default_icntl` (60 entries) and `default_cntl32`/`default_cntl64` (15 entries)
-follow the defaults of MUMPS 5.9.1. In particular, `CNTL(1) = -1` lets MUMPS choose the
-pivoting threshold automatically. Use `MUMPS.display_icntl(mumps)` and
-`MUMPS.display_cntl(mumps)` to print all control parameters with a description.
-
 A `Mumps` object is destroyed by calling the `finalize()` method. Because
 `finalize` still issues MPI commands, it is important to call `finalize()`
 before calling `MPI.Finalize()`.

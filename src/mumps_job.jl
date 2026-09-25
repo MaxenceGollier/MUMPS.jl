@@ -6,7 +6,7 @@ Enumeration of MUMPS job types; see MUMPS documentation for details.
   TERMINATE = -2 # terminates an instance of MUMPS
   DELETE_DATA = -3 # removes data saved to disk
   FACTOR_CLEANUP = -4 # frees all internal data, except those from analysis
-  # SUPPRESS_OOC_FILES = -200 # (experimental) deletes the OOC factor files of the calling process
+  # SURPRESS = -200 # "(experimental, subject to change) surpresses all MUMPS 
   # out-of-core factor files associated with MPI processes and returns"
   ANALYZE = 1 # performs the analysis phase
   FACTOR = 2 # performs the factorization phase
