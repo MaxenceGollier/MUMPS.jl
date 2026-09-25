@@ -91,20 +91,3 @@ end
   finalize(mumps32)
   MPI.Barrier(comm)
 end
-
-@testset "recompute statistics (JOB=13)" begin
-  mumps = quiet_mumps(Float64; sym = mumps_symmetric)
-  associate_matrix!(mumps, A)
-  MUMPS.set_job!(mumps, MUMPS.ANALYZE)
-  MUMPS.invoke_mumps!(mumps)
-  MUMPS.set_icntl!(mumps, 14, 50; displaylevel = 0)
-  MUMPS.mumps_recompute_statistics!(mumps)
-  @test mumps.job == MUMPS.RECOMPUTE_STATISTICS
-  @test mumps.infog[1] ≥ 0
-  @test !MUMPS.is_factored(mumps.job)
-  factorize!(mumps)
-  x = solve(mumps, rhs)
-  finalize(mumps)
-  MPI.Barrier(comm)
-  @test norm(A * x - rhs) <= tol * norm(rhs) * norm(A, 1)
-end

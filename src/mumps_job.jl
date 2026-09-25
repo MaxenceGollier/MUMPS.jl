@@ -18,14 +18,12 @@ Enumeration of MUMPS job types; see MUMPS documentation for details.
   RESTORE_DATA = 8 # save/restore feature; restore internal mumps data from disk.
   # RHS_DISTRIBUTION = 9 # "computes before the solution phase a possible distribution
   # for the right-hand sides [among the processors]"
-  RECOMPUTE_STATISTICS = 13 # cheap re-analysis: recompute analysis statistics (MUMPS ≥ 5.9)
 end
 
 const SOLVE_JOBS = (SOLVE, FACTOR_SOLVE, ANALYZE_FACTOR_SOLVE)
 const ONLY_FACTORED = (FACTOR, ANALYZE_FACTOR)
-const ONLY_ANALYZED = (ANALYZE, RECOMPUTE_STATISTICS)
 
-is_factored(job::MUMPS_JOB) = job >= FACTOR && job != RECOMPUTE_STATISTICS
+is_factored(job::MUMPS_JOB) = job >= FACTOR
 
 function get_name(job::MUMPS_JOB)
   if job == INITIALIZE
@@ -52,8 +50,6 @@ function get_name(job::MUMPS_JOB)
     return "save"
   elseif job == RESTORE_DATA
     return "restore"
-  elseif job == RECOMPUTE_STATISTICS
-    return "recompute analysis statistics"
   else
     return "unrecognized"
   end
